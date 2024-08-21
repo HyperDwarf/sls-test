@@ -1,0 +1,46 @@
+service: sls-test
+frameworkVersion: "3"
+
+useDotenv: true
+variablesResolutionMode: 20210326
+
+package:
+  individually: true
+  exclude:
+    - "*/**"
+    - "*"
+  include:
+    - libs/**
+
+plugins:
+  - serverless-webpack
+
+custom:
+  webpack:
+    webpackConfig: "webpack.config.js"
+    includeModules:
+      forceExclude:
+      - "@aws-sdk/client-dynamodb"
+      - "/mnt/efs/js/lib/node_modules/@tensorflow/tfjs-node"
+    packager: "npm"
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  memorySize: 128
+  timeout: 5
+  iam:
+    role: arn:aws:iam::*** # Your iam role
+  versionFunctions: false
+  region: us-west-2
+  deploymentMethod: direct
+
+functions:
+  # ---------------------------------------------------------------------------------------
+  # Core functions
+  # ---------------------------------------------------------------------------------------
+  test:
+    handler: src/test.default
+    package:
+      include:
+        - src/test.mjs
